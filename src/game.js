@@ -13,7 +13,7 @@ function start(canvas) {
     playerSpeed: 15
   });
 
-  const planetMass = 100;
+  const planetMass = 300;
   const playerMass = 600;
 
   const numberOfPlanets = 3;

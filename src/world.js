@@ -164,7 +164,7 @@ class World {
     const distance = this.dist(left, right);
     if (distance > 1) {
       const v = this.direction(left, right);
-      const attr = right.mass / distance * distance;
+      const attr = right.mass / 4 / distance * distance;
 
       let dx = -v.x * attr;
       let dy = -v.y * attr;
