@@ -24,9 +24,8 @@ class Planet {
     this.colorEdge = 'purple';
     this.keys = keys;
     this.shrink = false;
-    this.respawning = false;
     this.moons = [];
-    this.lives = 2;
+    this.lives = 4;
     this.texture = document.createElement('img');
     this.texture.src = pattern;
 
@@ -69,14 +68,8 @@ class Planet {
   }
 
   respawn() {
-    this.x = this.original.x;
-    this.y = this.original.y;
-
-    this.respawning = true;
-
-    setTimeout(() => {
-      this.respawning = false;
-    }, 1000);
+    // this.x = this.original.x;
+    // this.y = this.original.y;
   }
 
   hit() {
@@ -130,45 +123,6 @@ class Planet {
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
       ctx.arc(this.x, this.y, this.width, 0, 2 * Math.PI, false);
-      ctx.stroke();
-    }
-
-    this.drawOutsideIndicator();
-  }
-
-  drawOutsideIndicator() {
-    if (
-      this.x > ctx.canvas.width ||
-      this.x < 0 ||
-      this.y > ctx.canvas.height ||
-      this.y < 0
-    ) {
-      // draw indicator
-
-      let x = this.x;
-
-      if (this.x > ctx.canvas.width) {
-        x = ctx.canvas.width;
-      }
-
-      if (this.x < 0) {
-        x = 0;
-      }
-
-      let y = this.y;
-
-      if (this.y > ctx.canvas.height) {
-        y = ctx.canvas.height;
-      }
-
-      if (this.y < 0) {
-        y = 0;
-      }
-
-      ctx.beginPath();
-      ctx.lineWidth = this.width;
-      ctx.strokeStyle = this.color;
-      ctx.rect(x, y, this.width, this.width);
       ctx.stroke();
     }
   }

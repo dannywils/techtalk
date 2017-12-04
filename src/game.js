@@ -1,4 +1,12 @@
+let lastTime = 0;
+
 function update(canvas, world) {
+  const date = new Date();
+  const time = date.getTime();
+  const timeDiff = time - lastTime;
+  lastTime = time;
+
+  world.globalSpeed = 0.0001 * timeDiff;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   world.draw();
   world.update();
@@ -9,14 +17,13 @@ function start(canvas) {
   const world = new World({
     width: canvas.width,
     height: canvas.height,
-    globalSpeed: 0.0005,
-    playerSpeed: 15
+    playerSpeed: 20000
   });
 
   const planetMass = 300;
   const playerMass = 600;
 
-  const numberOfPlanets = 3;
+  const numberOfPlanets = 7;
 
   for (let i = 0; i < numberOfPlanets; i++) {
     // planets

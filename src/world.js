@@ -6,7 +6,6 @@ class World {
     this.players = [];
     this.globalSpeed = globalSpeed;
     this.playerSpeed = playerSpeed;
-    this.maxSpeed = globalSpeed * 1e7;
     this.frictionFactor = 1.01;
     this.keyboardSpeedModifier = 0.75;
     this.gameOver = false;
@@ -46,26 +45,27 @@ class World {
         const playerOne = this.players[0];
 
         if (Math.abs(x1) > this.controllerDeadZone) {
-          playerOne.moveX(x1 * this.playerSpeed);
+          playerOne.moveX(x1 * this.playerSpeed * this.globalSpeed);
         }
         if (Math.abs(y1) > this.controllerDeadZone) {
-          playerOne.moveY(y1 * this.playerSpeed);
+          playerOne.moveY(y1 * this.playerSpeed * this.globalSpeed);
         }
 
         // PLAYER TWO CONTROLS
         const playerTwo = this.players[1];
 
         if (Math.abs(x2) > this.controllerDeadZone) {
-          playerTwo.moveX(x2 * this.playerSpeed);
+          playerTwo.moveX(x2 * this.playerSpeed * this.globalSpeed);
         }
         if (Math.abs(y2) > this.controllerDeadZone) {
-          playerTwo.moveY(y2 * this.playerSpeed);
+          playerTwo.moveY(y2 * this.playerSpeed * this.globalSpeed);
         }
       }
     }
 
     this.players.forEach(player => {
-      const distance = this.playerSpeed * this.keyboardSpeedModifier;
+      const distance =
+        this.playerSpeed * this.keyboardSpeedModifier * this.globalSpeed;
 
       if (player.keys.left) {
         player.moveX(-distance);
@@ -148,10 +148,49 @@ class World {
     }
   }
 
+  wallBounce(planet) {
+    const collisionDamper = 0.0001;
+    const radius = planet.width / 2;
+
+    // floor friction
+    planet.dx /= this.frictionFactor;
+    planet.dy /= this.frictionFactor;
+
+    // floor condition
+    if (planet.y > canvas.height - radius) {
+      planet.y = canvas.height - radius - 2;
+      planet.dy *= -1;
+      planet.dy *= 1 - collisionDamper;
+    }
+
+    // ceiling condition
+    if (planet.y < radius) {
+      planet.y = radius + 2;
+      planet.dy *= -1;
+      planet.dy *= 1 - collisionDamper;
+    }
+
+    // right wall condition
+    if (planet.x > canvas.width - radius) {
+      planet.x = canvas.width - radius - 2;
+      planet.dx *= -1;
+      planet.dx *= 1 - collisionDamper;
+    }
+
+    // planet wall condition
+    if (planet.x < radius) {
+      planet.x = radius + 2;
+      planet.dx *= -1;
+      planet.dx *= 1 - collisionDamper;
+    }
+  }
+
   gravity() {
+    this.players.forEach(player => {
+      this.wallBounce(player);
+    });
     this.planets.forEach(planet => {
-      planet.dx = planet.dx / this.frictionFactor;
-      planet.dy = planet.dy / this.frictionFactor;
+      this.wallBounce(planet);
 
       this.planets.forEach(planet2 => {
         if (planet !== planet2) {
