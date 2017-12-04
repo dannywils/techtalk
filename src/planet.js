@@ -1,0 +1,162 @@
+class Planet {
+  constructor({
+    x,
+    y,
+    mass,
+    stationary,
+    color,
+    keys,
+    bounds,
+    pattern = '/images/astroid.jpg'
+  }) {
+    this.original = {
+      x,
+      y
+    };
+
+    this.x = x;
+    this.y = y;
+    this.bounds = bounds;
+    this.dx = 0;
+    this.dy = 0;
+    this.originalMass = mass;
+    this.color = color;
+    this.colorEdge = 'purple';
+    this.keys = keys;
+    this.shrink = false;
+    this.respawning = false;
+    this.moons = [];
+    this.lives = 2;
+    this.texture = document.createElement('img');
+    this.texture.src = pattern;
+
+    this.texture.onload = () => {
+      this.pattern = ctx.createPattern(this.texture, 'repeat');
+    };
+  }
+
+  get width() {
+    return this.mass / 9; // / this.percentageOfXBounds;
+  }
+
+  get percentageOfXBounds() {
+    if (
+      this.bounds &&
+      this.bounds.x0 !== undefined &&
+      this.bounds.x1 !== undefined
+    ) {
+      let firstBound, secondBound;
+
+      if (this.bounds.x0 !== 0) {
+        firstBound = this.bounds.x0;
+        secondBound = this.bounds.x1;
+      } else {
+        firstBound = this.bounds.x1;
+        secondBound = this.bounds.x0;
+      }
+
+      const percentageOfXBounds =
+        (this.x - firstBound) / (secondBound - firstBound);
+
+      return Math.max(percentageOfXBounds, 0.5);
+    }
+
+    return 1;
+  }
+
+  get mass() {
+    return this.originalMass * this.percentageOfXBounds;
+  }
+
+  respawn() {
+    this.x = this.original.x;
+    this.y = this.original.y;
+
+    this.respawning = true;
+
+    setTimeout(() => {
+      this.respawning = false;
+    }, 1000);
+  }
+
+  hit() {
+    this.lives = Math.max(0, this.lives - 1);
+
+    if (this.lives) {
+      this.respawn();
+    }
+  }
+
+  moveX(distance) {
+    const { x0, x1 } = this.bounds;
+
+    const newX = this.x + distance;
+
+    if (newX - this.width / 2 > x0 && newX + this.width / 2 < x1) {
+      this.x = newX;
+    }
+  }
+
+  moveY(distance) {
+    const { y0, y1 } = this.bounds;
+    const newY = this.y + distance;
+    if (newY - this.width / 2 > y0 && newY + this.width / 2 < y1) {
+      this.y = newY;
+    }
+  }
+
+  draw() {
+    ctx.globalAlpha = 1.0;
+
+    if (this.pattern) {
+      ctx.beginPath();
+      ctx.save();
+      ctx.arc(this.x, this.y, this.width, 0, 2 * Math.PI, false);
+      ctx.moveTo(this.x, this.y);
+
+      ctx.translate(this.x + 250, this.y - 150);
+      ctx.fillStyle = this.pattern;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    this.drawOutsideIndicator();
+  }
+
+  drawOutsideIndicator() {
+    if (
+      this.x > ctx.canvas.width ||
+      this.x < 0 ||
+      this.y > ctx.canvas.height ||
+      this.y < 0
+    ) {
+      // draw indicator
+
+      let x = this.x;
+
+      if (this.x > ctx.canvas.width) {
+        x = ctx.canvas.width;
+      }
+
+      if (this.x < 0) {
+        x = 0;
+      }
+
+      let y = this.y;
+
+      if (this.y > ctx.canvas.height) {
+        y = ctx.canvas.height;
+      }
+
+      if (this.y < 0) {
+        y = 0;
+      }
+
+      ctx.beginPath();
+      ctx.lineWidth = this.width;
+      ctx.strokeStyle = this.color;
+      ctx.rect(x, y, this.width, this.width);
+      ctx.stroke();
+    }
+  }
+}
