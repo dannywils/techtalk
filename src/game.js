@@ -1,7 +1,7 @@
 function update(canvas, world) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  world.update();
   world.draw();
+  world.update();
   requestAnimFrame(() => update(canvas, world));
 }
 

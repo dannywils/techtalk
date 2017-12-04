@@ -8,15 +8,15 @@ class World {
     this.playerSpeed = playerSpeed;
     this.maxSpeed = globalSpeed * 1e7;
     this.frictionFactor = 1.01;
+    this.keyboardSpeedModifier = 0.75;
     this.gameOver = false;
+    this.controllerDeadZone = 0.2;
   }
 
   movement(keys) {
     var gamepads = navigator.getGamepads
       ? navigator.getGamepads()
       : navigator.webkitGetGamepads ? navigator.webkitGetGamepads : [];
-
-    const deadzone = 0.2;
 
     for (var i = 0; i < gamepads.length; i++) {
       var gp = gamepads[i];
@@ -45,47 +45,27 @@ class World {
         // PLAYER ONE CONTROLS
         const playerOne = this.players[0];
 
-        const addPlanet = () => {
-          console.log('add planet called');
-          this.planets.push(
-            new Planet({
-              x: playerOne.x,
-              y: playerOne.y,
-              mass: 100,
-              color: playerOne.color
-            })
-          );
-        };
-
-        if (a.pressed) {
-          throttle(addPlanet, 1000, this)();
-        }
-
-        playerOne.shrink = lt.pressed;
-
-        if (Math.abs(x1) > deadzone) {
+        if (Math.abs(x1) > this.controllerDeadZone) {
           playerOne.moveX(x1 * this.playerSpeed);
         }
-        if (Math.abs(y1) > deadzone) {
+        if (Math.abs(y1) > this.controllerDeadZone) {
           playerOne.moveY(y1 * this.playerSpeed);
         }
 
         // PLAYER TWO CONTROLS
         const playerTwo = this.players[1];
 
-        playerTwo.shrink = rt.pressed;
-
-        if (Math.abs(x2) > deadzone) {
+        if (Math.abs(x2) > this.controllerDeadZone) {
           playerTwo.moveX(x2 * this.playerSpeed);
         }
-        if (Math.abs(y2) > deadzone) {
+        if (Math.abs(y2) > this.controllerDeadZone) {
           playerTwo.moveY(y2 * this.playerSpeed);
         }
       }
     }
 
     this.players.forEach(player => {
-      const distance = this.playerSpeed;
+      const distance = this.playerSpeed * this.keyboardSpeedModifier;
 
       if (player.keys.left) {
         player.moveX(-distance);
@@ -102,12 +82,6 @@ class World {
       if (player.keys.down) {
         player.moveY(distance);
       }
-
-      // if (player.keys.shrink) {
-      //   player.mass = player.originalMass / 2;
-      // } else {
-      //   player.mass = player.originalMass;
-      // }
     });
 
     this.planets.forEach(object => {
@@ -208,11 +182,11 @@ class World {
   }
 
   update() {
+    this.gravity();
+    this.movement();
     if (this.gameOver) {
       this.drawGameOver();
     }
-    this.gravity();
-    this.movement();
   }
 
   drawGameOver() {
@@ -231,14 +205,6 @@ class World {
   }
 
   draw() {
-    if (!this.gameOver) {
-      ctx.beginPath();
-      ctx.lineWidth = '2';
-      ctx.strokeStyle = 'red';
-      ctx.rect(canvas.width / 2 - 5, 0, 10, canvas.height);
-      ctx.stroke();
-    }
-
     // todo: move to player subclass
     this.players.forEach(player => {
       if (player.lives === 0) {
@@ -250,6 +216,14 @@ class World {
       ctx.textAlign = 'center';
       ctx.fillText('-'.repeat(player.lives), player.x, player.y - player.width);
     });
+
+    if (!this.gameOver) {
+      ctx.beginPath();
+      ctx.lineWidth = '1';
+      ctx.strokeStyle = 'white';
+      ctx.rect(canvas.width / 2, 0, 1, canvas.height);
+      ctx.stroke();
+    }
 
     this.planets.forEach(object => object.draw());
   }

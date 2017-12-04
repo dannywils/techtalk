@@ -36,7 +36,11 @@ class Planet {
   }
 
   get width() {
-    return this.mass / 9; // / this.percentageOfXBounds;
+    return this.mass / 9 / this.percentageOfXBounds;
+  }
+
+  get mass() {
+    return this.originalMass * this.percentageOfXBounds;
   }
 
   get percentageOfXBounds() {
@@ -62,10 +66,6 @@ class Planet {
     }
 
     return 1;
-  }
-
-  get mass() {
-    return this.originalMass * this.percentageOfXBounds;
   }
 
   respawn() {
@@ -113,11 +113,24 @@ class Planet {
       ctx.save();
       ctx.arc(this.x, this.y, this.width, 0, 2 * Math.PI, false);
       ctx.moveTo(this.x, this.y);
-
       ctx.translate(this.x + 250, this.y - 150);
       ctx.fillStyle = this.pattern;
       ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.width, 0, 2 * Math.PI, false);
+      ctx.clip();
       ctx.restore();
+
+      ctx.beginPath();
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 15;
+      ctx.shadowBlur = 35;
+      ctx.shadowColor = 'black';
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.arc(this.x, this.y, this.width, 0, 2 * Math.PI, false);
+      ctx.stroke();
     }
 
     this.drawOutsideIndicator();
