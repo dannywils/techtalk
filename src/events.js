@@ -1,4 +1,4 @@
-function addKeyEvents({
+export function addKeyEvents({
   leftKey,
   rightKey,
   upKey,
@@ -55,25 +55,4 @@ function addKeyEvents({
     },
     false
   );
-}
-
-let last = {};
-let deferTimers = {};
-
-function throttle(fn, threshhold = 250, context) {
-  return () => {
-    const now = +new Date();
-    const args = arguments;
-    if (last[fn] && now < last[fn] + threshhold) {
-      // hold on to it
-      clearTimeout(deferTimers[fn]);
-      deferTimers[fn] = setTimeout(() => {
-        last[fn] = now;
-        fn.apply(context, args);
-      }, threshhold + last[fn] - now);
-    } else {
-      last[fn] = now;
-      fn.apply(context, args);
-    }
-  };
 }

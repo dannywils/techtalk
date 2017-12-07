@@ -1,4 +1,6 @@
-class World {
+import { canvas, ctx } from './draw';
+
+export class World {
   constructor({ width, height, globalSpeed, playerSpeed }) {
     this.dx = width;
     this.dy = height;
@@ -6,7 +8,7 @@ class World {
     this.players = [];
     this.globalSpeed = globalSpeed;
     this.playerSpeed = playerSpeed;
-    this.frictionFactor = 1.01;
+    this.frictionFactor = 1425;
     this.keyboardSpeedModifier = 0.75;
     this.gameOver = false;
     this.controllerDeadZone = 0.2;
@@ -149,12 +151,8 @@ class World {
   }
 
   wallBounce(planet) {
-    const collisionDamper = 0.0001;
+    const collisionDamper = 0.00003;
     const radius = planet.width / 2;
-
-    // floor friction
-    planet.dx /= this.frictionFactor;
-    planet.dy /= this.frictionFactor;
 
     // floor condition
     if (planet.y > canvas.height - radius) {
@@ -183,6 +181,12 @@ class World {
       planet.dx *= -1;
       planet.dx *= 1 - collisionDamper;
     }
+
+    // floor friction
+    const friction = this.frictionFactor * this.globalSpeed;
+
+    planet.dx *= friction;
+    planet.dy *= friction;
   }
 
   gravity() {
@@ -223,9 +227,6 @@ class World {
   update() {
     this.gravity();
     this.movement();
-    if (this.gameOver) {
-      this.drawGameOver();
-    }
   }
 
   drawGameOver() {
@@ -244,6 +245,9 @@ class World {
   }
 
   draw() {
+    if (this.gameOver) {
+      this.drawGameOver();
+    }
     // todo: move to player subclass
     this.players.forEach(player => {
       if (player.lives === 0) {

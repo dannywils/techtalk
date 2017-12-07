@@ -1,4 +1,6 @@
-class Planet {
+import { canvas, ctx } from './draw';
+
+export class Planet {
   constructor({
     x,
     y,

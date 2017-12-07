@@ -1,0 +1,17 @@
+{
+  "name": "techtalk",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:dannywils/techtalk.git",
+  "author": "Danny Wilson <dwilson@getchalk.com>",
+  "license": "MIT",
+  "dependencies": {
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "parcel-bundler": "^1.0.2"
+  },
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html --no-minify"
+  }
+}

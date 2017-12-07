@@ -1,6 +1,13 @@
+import { addKeyEvents } from './events';
+import { Planet } from './planet';
+import { World } from './world';
+import { ctx, canvas } from './draw';
+
+import requestAnimFrame from './polyfill';
+
 let lastTime = 0;
 
-function update(canvas, world) {
+function update(world) {
   const date = new Date();
   const time = date.getTime();
   const timeDiff = time - lastTime;
@@ -10,27 +17,30 @@ function update(canvas, world) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   world.draw();
   world.update();
-  requestAnimFrame(() => update(canvas, world));
+  requestAnimFrame(() => update(world));
 }
 
-function start(canvas) {
+function start() {
+  const width = canvas.width;
+  const height = canvas.height;
+
   const world = new World({
-    width: canvas.width,
-    height: canvas.height,
+    width,
+    height,
     playerSpeed: 20000
   });
 
   const planetMass = 300;
   const playerMass = 600;
 
-  const numberOfPlanets = 7;
+  const numberOfPlanets = 5;
 
   for (let i = 0; i < numberOfPlanets; i++) {
     // planets
     world.planets.push(
       new Planet({
-        x: canvas.width / 2,
-        y: canvas.height / 1 + numberOfPlanets * i,
+        x: width / 2,
+        y: height / numberOfPlanets * (i + 1),
         mass: planetMass,
         color: 'white'
       })
@@ -46,18 +56,19 @@ function start(canvas) {
   };
   // players
   const playerOne = new Planet({
-    x: canvas.width / 8,
-    y: canvas.height / 2,
+    x: width / 8,
+    y: height / 2,
     bounds: {
       x0: 0,
       y0: 0,
-      x1: canvas.width / 2,
-      y1: canvas.height
+      x1: width / 2,
+      y1: height,
+      ctx
     },
     mass: playerMass,
     color: 'red',
-    pattern: 'images/earth.jpg',
-    keys: Object.assign({}, initialPlayerState)
+    pattern: '/images/earth.jpg',
+    keys: { ...initialPlayerState }
   });
 
   addKeyEvents({
@@ -69,18 +80,18 @@ function start(canvas) {
   });
 
   const playerTwo = new Planet({
-    x: canvas.width / 8 * 7,
-    y: canvas.height / 2,
+    x: width / 8 * 7,
+    y: height / 2,
     bounds: {
-      x0: canvas.width / 2,
+      x0: width / 2,
       y0: 0,
-      x1: canvas.width,
-      y1: canvas.height
+      x1: width,
+      y1: height
     },
     mass: playerMass,
     color: 'blue',
-    pattern: 'images/mars.jpg',
-    keys: Object.assign({}, initialPlayerState)
+    pattern: '/images/mars.jpg',
+    keys: { ...initialPlayerState }
   });
 
   addKeyEvents({
@@ -95,22 +106,17 @@ function start(canvas) {
   world.players.push(playerOne);
   world.players.push(playerTwo);
 
-  update(canvas, world);
+  update(world);
   return world;
 }
 
-function createWorldObjects(world) {}
-
-window.onload = () => {
-  canvas = document.getElementById('canvas_main');
-  ctx = canvas.getContext('2d');
+export const run = () => {
+  let world = start();
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  let world = start(canvas);
-
   canvas.addEventListener('click', event => {
     if (world.gameOver) {
-      world = start(canvas);
+      world = start();
     }
   });
 };
